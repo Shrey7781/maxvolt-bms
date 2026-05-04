@@ -13,8 +13,8 @@
 #define WIFI_PASS   "M@xVolt@1234@"
 
 // ── Server Config ─────────────────────────────────────────────────────────────
-#define SERVER_URL  "https://rework-batting-spearhead.ngrok-free.dev/bms"
-#define DEVICE_ID   "unit01"                          // <-- unique ID per ESP32
+#define SERVER_URL  "http://10.11.1.201:8080/bms"
+#define DEVICE_ID   "IOT101"                          // <-- unique ID per ESP32
 
 // ── Pin & Serial Config ───────────────────────────────────────────────────────
 #define BMS_SERIAL       Serial2
@@ -264,7 +264,6 @@ static void sendToServer(const BMSData& d) {
   HTTPClient http;
   http.begin(SERVER_URL);
   http.addHeader("Content-Type", "application/json");
-  http.addHeader("ngrok-skip-browser-warning", "true");
   int code = http.POST(payload);
   if (code == 204) {
     Serial.println("[HTTP] OK");
