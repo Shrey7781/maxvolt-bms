@@ -23,7 +23,7 @@ type BMSPayload struct {
 	TempMOS   float32   `json:"temp_mos"`
 	TempBat   []float32 `json:"temp_bat"`
 	Cells     []int32   `json:"cells"`
-	Charging  bool      `json:"charging"`
+	Status    string    `json:"status"`
 }
 
 var db *pgxpool.Pool
@@ -38,10 +38,10 @@ func postBMS(c *gin.Context) {
 	_, err := db.Exec(c.Request.Context(), `
 		INSERT INTO bms_readings
 			(device_id, voltage, current, power, soc, soh,
-			 remain_mah, full_mah, cycles, temp_mos, temp_bat, cells, charging)
+			 remain_mah, full_mah, cycles, temp_mos, temp_bat, cells, status)
 		VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13)`,
 		p.DeviceID, p.Voltage, p.Current, p.Power, p.SOC, p.SOH,
-		p.RemainMAh, p.FullMAh, p.Cycles, p.TempMOS, p.TempBat, p.Cells, p.Charging,
+		p.RemainMAh, p.FullMAh, p.Cycles, p.TempMOS, p.TempBat, p.Cells, p.Status,
 	)
 	if err != nil {
 		log.Printf("db insert: %v", err)

@@ -17,7 +17,7 @@ CREATE TABLE bms_readings (
     temp_mos    REAL,
     temp_bat    REAL[],
     cells       INTEGER[],
-    charging    BOOLEAN
+    status      TEXT
 );
 
 CREATE INDEX ON bms_readings (device_id, ts DESC);

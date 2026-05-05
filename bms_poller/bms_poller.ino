@@ -160,7 +160,7 @@ static BMSData readBMS() {
   d.temp_bat[0]  = asI16(b2[2]) * 0.1f;
   d.temp_bat[1]  = asI16(b2[3]) * 0.1f;
   d.soc          = b2[7] & 0xFF;
-  d.soh          = (b2[16] >> 8) & 0xFF;
+  d.soh          = b2[16] & 0xFF;
   d.remain_mah   = asI32(b2[8], b2[9]);
   d.full_mah     = asU32(b2[10], b2[11]);
   d.cycles       = asU32(b2[12], b2[13]);
@@ -248,7 +248,9 @@ static void sendToServer(const BMSData& d) {
   doc["full_mah"]   = d.full_mah;
   doc["cycles"]     = d.cycles;
   doc["temp_mos"]   = d.temp_mos;
-  doc["charging"]   = (d.current >= 0.0f);
+  if (d.current > 0.05f)       doc["status"] = "charging";
+  else if (d.current < -0.05f) doc["status"] = "discharging";
+  else                         doc["status"] = "idle";
 
   JsonArray temps = doc["temp_bat"].to<JsonArray>();
   for (uint8_t i = 0; i < 4; i++)

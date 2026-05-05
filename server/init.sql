@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS bms_readings (
     temp_mos    REAL,
     temp_bat    REAL[],
     cells       INTEGER[],
-    charging    BOOLEAN
+    status      TEXT
 );
 
 CREATE INDEX IF NOT EXISTS idx_bms_device_ts ON bms_readings (device_id, ts DESC);
