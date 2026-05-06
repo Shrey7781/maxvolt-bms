@@ -28,5 +28,16 @@ services:
       db:
         condition: service_healthy
 
+  backend:
+    build: ../backend
+    restart: unless-stopped
+    ports:
+      - "8081:8081"
+    environment:
+      DATABASE_URL: postgresql://postgres:password@db:5432/maxvolt
+    depends_on:
+      db:
+        condition: service_healthy
+
 volumes:
   postgres_data:

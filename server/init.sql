@@ -1,3 +1,12 @@
+CREATE TABLE IF NOT EXISTS devices (
+    device_id           TEXT PRIMARY KEY,
+    name                TEXT,
+    location            TEXT,
+    design_capacity_mah INTEGER,
+    last_seen           TIMESTAMPTZ,
+    registered          TIMESTAMPTZ DEFAULT now()
+);
+
 CREATE TABLE IF NOT EXISTS bms_readings (
     id          BIGSERIAL    PRIMARY KEY,
     device_id   TEXT         NOT NULL,

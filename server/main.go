@@ -49,6 +49,16 @@ func postBMS(c *gin.Context) {
 		return
 	}
 
+	_, err = db.Exec(c.Request.Context(), `
+		INSERT INTO devices (device_id, last_seen)
+		VALUES ($1, NOW())
+		ON CONFLICT (device_id) DO UPDATE SET last_seen = NOW()`,
+		p.DeviceID,
+	)
+	if err != nil {
+		log.Printf("last_seen upsert: %v", err)
+	}
+
 	c.Status(http.StatusNoContent)
 }
 

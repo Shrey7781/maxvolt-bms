@@ -99,11 +99,15 @@ static bool readRegs(uint8_t slave, uint16_t startReg, uint8_t count, uint16_t* 
       buf[got++] = (uint8_t)BMS_SERIAL.read();
   }
 
-  if (got < 5)                   return false;
-  if (buf[0] != slave)           return false;
-  if (buf[1] == 0x83)            return false; // BMS error response
-  if (buf[1] != 0x03)            return false;
-  if (buf[2] != count * 2)       return false;
+  if (got < expected)             return false;
+  if (buf[0] != slave)            return false;
+  if (buf[1] == 0x83)             return false; // BMS error response
+  if (buf[1] != 0x03)             return false;
+  if (buf[2] != count * 2)        return false;
+
+  // Verify CRC of received frame
+  uint16_t rxCrc = (uint16_t)buf[expected - 1] << 8 | buf[expected - 2];
+  if (crc16(buf, expected - 2) != rxCrc) return false;
 
   for (uint8_t i = 0; i < count; i++)
     out[i] = ((uint16_t)buf[3 + i * 2] << 8) | buf[4 + i * 2];
@@ -139,7 +143,7 @@ static BMSData readBMS() {
   d.voltage  = asU32(b1[72], b1[73]) / 1000.0f;
   d.power    = asU32(b1[74], b1[75]) / 1000.0f;
 
-  delay(100); // give BMS time to recover between requests
+  delay(200); // give BMS time to recover between requests
 
   // Block 2: 0x1200+0x0098, 30 registers
   //   reg[0..1]  = BatCurrent (INT32, mA)
@@ -160,7 +164,7 @@ static BMSData readBMS() {
   d.temp_bat[0]  = asI16(b2[2]) * 0.1f;
   d.temp_bat[1]  = asI16(b2[3]) * 0.1f;
   d.soc          = b2[7] & 0xFF;
-  d.soh          = b2[16] & 0xFF;
+  d.soh          = (b2[16] >> 8) & 0xFF;
   d.remain_mah   = asI32(b2[8], b2[9]);
   d.full_mah     = asU32(b2[10], b2[11]);
   d.cycles       = asU32(b2[12], b2[13]);
